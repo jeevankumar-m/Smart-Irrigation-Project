@@ -124,7 +124,7 @@ void printReadings() {
   }
   Serial.print("Soil raw    : "); Serial.println(soilRaw);
   Serial.print("Soil moist. : "); Serial.print(soilPct); Serial.println(" %");
-  Serial.print("Rain        : "); Serial.print(raining ? "YES" : "no");
+  Serial.print("Rain        : "); Serial.print(raining ? "Yes" : "No");
   Serial.print("  (pin = "); Serial.print(rainState); Serial.println(")");
   Serial.print("Light       : "); Serial.print(dark ? "DARK" : "BRIGHT");
   Serial.print("  (pin = "); Serial.print(lightState); Serial.println(")");
@@ -147,7 +147,8 @@ void sendToBlynk() {
                 (float)wri, hum, (float)soilRaw};
   for (int i = 0; i < 7; i++) {
     if (fabs(v[i] - lastSent[i]) >= DELTA[i] || millis() - lastSentMs[i] >= HEARTBEAT_MS) {
-      Blynk.virtualWrite(VPINS[i], v[i]);
+      if (VPINS[i] == 2) Blynk.virtualWrite(2, v[i] > 0.5 ? "Yes" : "No");   // V2 Rain is a String datastream
+      else               Blynk.virtualWrite(VPINS[i], v[i]);
       lastSent[i] = v[i];
       lastSentMs[i] = millis();
     }
@@ -338,7 +339,7 @@ const load=()=>fetch('/data').then(r=>r.json()).then(j=>{
  set('t',j.t); set('h',j.h); set('sp',j.sp); set('wri',j.wri);
  g('spb').style.width=j.sp+'%';
  set('lt',j.dark?'Dark':'Bright'); show('isun',!j.dark); show('imoon',!!j.dark);
- set('rn',j.rain?'Rain detected':'No rain'); show('irain',!!j.rain); show('inorain',!j.rain);
+ set('rn',j.rain?'Yes':'No'); show('irain',!!j.rain); show('inorain',!j.rain);
  var c=j.wri<34?'#1F7A52':(j.wri<67?'#C98A1B':'#C0392B');
  g('ring').style.stroke=c;
  g('ring').style.strokeDashoffset=326.7*(1-j.wri/100);
